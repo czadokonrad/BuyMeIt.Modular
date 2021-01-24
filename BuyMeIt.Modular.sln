@@ -1,0 +1,79 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuyMeIt.Modules.UserAccess.Domain", "BuyMeIt.Modular\BuyMeIt.Modules.UserAccess.Domain.csproj", "{4FB2E141-8B52-44EA-B796-1091CBD99712}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8DD045EF-77B4-4511-9E3F-9D281E6C8623}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UserAccess", "UserAccess", "{24244722-97D4-4197-9E77-9B8AB049AE75}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{40073C60-E30A-4910-BBDE-768010A9BEA9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildingBlocks", "BuildingBlocks", "{47E3E601-CB77-4A2D-B9FD-0ABCB32B5535}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuyMeIt.BuildingBlocks.Domain", "BuyMeIt.BuildingBlocks.Domain\BuyMeIt.BuildingBlocks.Domain.csproj", "{C80E6E3D-1F7D-48C3-A29E-71C498A6E16C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuyMeIt.BuildingBlocks.EventBus", "BuyMeIt.BuildingBlocks.EventBus\BuyMeIt.BuildingBlocks.EventBus.csproj", "{FCF9CD62-DA15-43F1-8316-09E5E1761CBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuyMeIt.BuildingBlocks.Infrastructure", "BuyMeIt.BuildingBlocks.Infrastructure\BuyMeIt.BuildingBlocks.Infrastructure.csproj", "{50071F29-508D-4019-9DC2-AEE6131FEAB2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9B45FC71-2CF4-48E8-901C-57E5ACD5AC2A}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuyMeIt.Modules.UserAccess.Infrastructure", "BuyMeIt.Modules.UserAccess.Infrastructure\BuyMeIt.Modules.UserAccess.Infrastructure.csproj", "{33BB0E9A-47A1-4A16-B503-1FA2FDCDA90C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuyMeIt.BuildingBlocks.Application", "BuyMeIt.BuildingBlocks.Application\BuyMeIt.BuildingBlocks.Application.csproj", "{CE8D483B-BE89-4CB2-AC81-87E7C931811C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4FB2E141-8B52-44EA-B796-1091CBD99712}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FB2E141-8B52-44EA-B796-1091CBD99712}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FB2E141-8B52-44EA-B796-1091CBD99712}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FB2E141-8B52-44EA-B796-1091CBD99712}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C80E6E3D-1F7D-48C3-A29E-71C498A6E16C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C80E6E3D-1F7D-48C3-A29E-71C498A6E16C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C80E6E3D-1F7D-48C3-A29E-71C498A6E16C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C80E6E3D-1F7D-48C3-A29E-71C498A6E16C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCF9CD62-DA15-43F1-8316-09E5E1761CBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCF9CD62-DA15-43F1-8316-09E5E1761CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCF9CD62-DA15-43F1-8316-09E5E1761CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCF9CD62-DA15-43F1-8316-09E5E1761CBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50071F29-508D-4019-9DC2-AEE6131FEAB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50071F29-508D-4019-9DC2-AEE6131FEAB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50071F29-508D-4019-9DC2-AEE6131FEAB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50071F29-508D-4019-9DC2-AEE6131FEAB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33BB0E9A-47A1-4A16-B503-1FA2FDCDA90C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33BB0E9A-47A1-4A16-B503-1FA2FDCDA90C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33BB0E9A-47A1-4A16-B503-1FA2FDCDA90C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33BB0E9A-47A1-4A16-B503-1FA2FDCDA90C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE8D483B-BE89-4CB2-AC81-87E7C931811C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE8D483B-BE89-4CB2-AC81-87E7C931811C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE8D483B-BE89-4CB2-AC81-87E7C931811C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE8D483B-BE89-4CB2-AC81-87E7C931811C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4FB2E141-8B52-44EA-B796-1091CBD99712} = {24244722-97D4-4197-9E77-9B8AB049AE75}
+		{24244722-97D4-4197-9E77-9B8AB049AE75} = {40073C60-E30A-4910-BBDE-768010A9BEA9}
+		{40073C60-E30A-4910-BBDE-768010A9BEA9} = {8DD045EF-77B4-4511-9E3F-9D281E6C8623}
+		{47E3E601-CB77-4A2D-B9FD-0ABCB32B5535} = {8DD045EF-77B4-4511-9E3F-9D281E6C8623}
+		{C80E6E3D-1F7D-48C3-A29E-71C498A6E16C} = {47E3E601-CB77-4A2D-B9FD-0ABCB32B5535}
+		{FCF9CD62-DA15-43F1-8316-09E5E1761CBA} = {47E3E601-CB77-4A2D-B9FD-0ABCB32B5535}
+		{50071F29-508D-4019-9DC2-AEE6131FEAB2} = {47E3E601-CB77-4A2D-B9FD-0ABCB32B5535}
+		{33BB0E9A-47A1-4A16-B503-1FA2FDCDA90C} = {24244722-97D4-4197-9E77-9B8AB049AE75}
+		{CE8D483B-BE89-4CB2-AC81-87E7C931811C} = {47E3E601-CB77-4A2D-B9FD-0ABCB32B5535}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DAF14176-08E6-4F61-AFC4-FE9485178B46}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="EventBus\IntegrationEvent.cs~RF1a6103f9.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.1.0" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BuyMeIt.BuildingBlocks.Application\BuyMeIt.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\BuyMeIt.BuildingBlocks.Domain\BuyMeIt.BuildingBlocks.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
