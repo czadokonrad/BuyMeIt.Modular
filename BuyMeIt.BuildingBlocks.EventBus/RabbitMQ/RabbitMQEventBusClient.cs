@@ -59,12 +59,8 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
             {
                 _logger.Information("Declaring RabbitMQ exchange to publish event: {EventId}", @event.Id);
                 
-                channel.ExchangeDeclare(exchange: ExchangeName, 
-                                        type: DirectExchangeType,
-                                        durable: false,
-                                        autoDelete: false,
-                                        arguments: null);
-
+                new DirectExchangeRabbitMQManager().DeclareDefaultDirectExchange(channel, ExchangeName);
+                
                 string message = JsonConvert.SerializeObject(@event);
                 byte[] body = Encoding.UTF8.GetBytes(message);
 

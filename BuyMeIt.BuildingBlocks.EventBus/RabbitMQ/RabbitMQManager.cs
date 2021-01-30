@@ -2,8 +2,9 @@
 
 namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
 {
-    public interface IRabbitMQManager
+    public abstract class RabbitMQManager
     {
+
         /// <summary>
         /// Returns new channel.
         /// <para></para>
@@ -15,60 +16,27 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         /// </summary>
         /// <param name="connection">AMQP connection to RabbitMQ</param>
         /// <returns></returns>
-        IModel CreateNewChannel(IConnection connection);
-
-        /// <summary>
-        /// Declares non-durable, non-autodelete direct exchange without setting any additional parameters explicitly
-        /// </summary>
-        /// <param name="channel">Channel on which exchange should be declared</param>
-        /// <param name="exchangeName">Exchange name</param>
-        void DeclareDefaultDirectExchange(IModel channel, string exchangeName);
-
+        protected IModel CreateNewChannel(IConnection connection) =>
+            connection.CreateModel();
+        
         /// <summary>
         /// Declares non durable, non-autodelete, non-exclusive queue 
         /// </summary>
         /// <param name="channel">Channel on which queue should be declared</param>
         /// <param name="queueName">Queue name</param>
-        void DeclareDefaultQueue(IModel channel, string queueName);
-
-
-        /// <summary>
-        /// Binds queue to exchange using passed routingKey without extra arguments
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <param name="queueName"></param>
-        /// <param name="exchangeName"></param>
-        /// <param name="routingKey"></param>
-        void DefaultQueueBind(IModel channel, string queueName, string exchangeName, string routingKey);
-    }
-
-    public class RabbitMQManager : IRabbitMQManager
-    {
-        public IModel CreateNewChannel(IConnection connection) =>
-            connection.CreateModel();
-
-        public void DeclareDefaultDirectExchange(IModel channel, string exchangeName) =>
-            channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
-
-        public void DeclareDefaultQueue(IModel channel, string queueName) =>
+        protected void DeclareDefaultQueue(IModel channel, string queueName) =>
             channel.QueueDeclare(queueName, false, false, false);
 
-        public void DefaultQueueBind(IModel channel, string queueName, string exchangeName, string routingKey) =>
+        protected void DefaultQueueBind(IModel channel, string queueName, string exchangeName, string routingKey) =>
             channel.QueueBind(queueName, exchangeName, routingKey);
 
-        public void CreateDirectExchangeWithNonDurableQueueAndBindThem(IModel channel, string queueName, string exchangeName,
-            string routingKey)
-        {
-            DeclareDefaultDirectExchange(channel, exchangeName);
-            DeclareDefaultQueue(channel, queueName);
-            DefaultQueueBind(channel, queueName, exchangeName, routingKey);
-        }
-
-
-        public void DeleteQueue(IModel channel, string queueName) =>
+        protected abstract void CreateDefaultExchangeAndDefaultQueue(IModel channel, string queueName, string exchangeName,
+            string routingKey);
+        
+        protected void DeleteQueue(IModel channel, string queueName) =>
             channel.QueueDelete(queueName, false, false);
 
-        public void DeleteQueueIfEmpty(IModel channel, string queueName) =>
+        protected void DeleteQueueIfEmpty(IModel channel, string queueName) =>
             channel.QueueDelete(queueName, false, true);
 
     }
