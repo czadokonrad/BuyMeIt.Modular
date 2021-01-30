@@ -35,5 +35,31 @@ namespace BuyMeIt.Modules.UserAccess.Infrastructure.Configuration.EventBus
                 }
             }
         }
+
+        public async Task Handle(dynamic @event)
+        {
+            using (var scope = UserAccessCompositionRoot.BeginLifetimeScope())
+            {
+                using (var connection = await scope.Resolve<ISqlConnectionFactory>().GetOpenConnectionAsync())
+                {
+                    string type = @event.GetType().FullName;
+                    var data = JsonConvert.SerializeObject(@event, new JsonSerializerSettings
+                    {
+                        ContractResolver = new AllPropertiesContractResolver()
+                    });
+
+                    var sql = "INSERT INTO [users].[InboxMessages] (Id, OccurredOn, Type, Data) " +
+                              "VALUES (@Id, @OccurredOn, @Type, @Data)";
+
+                    await connection.ExecuteScalarAsync(sql, new
+                    {
+                        @event.Id,
+                        @event.OccurredOn,
+                        type,
+                        data
+                    });
+                }
+            }
+        }
     }
 }

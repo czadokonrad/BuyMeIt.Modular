@@ -42,5 +42,16 @@ namespace BuyMeIt.BuildingBlocks.EventBus.InMemory
                 }
             }
         }
+
+        public async Task Publish(string eventName, dynamic @event)
+        {
+            var integrationEventHandlers = _handlers.Where(x => x.EventName == eventName).ToList();
+
+            foreach (var integrationEventHandler in integrationEventHandlers)
+            {
+                await integrationEventHandler.Handler.Handle(@event);
+                OnEventPublished?.Invoke(this, EventArgs.Empty);
+            }
+        }
     }
 }

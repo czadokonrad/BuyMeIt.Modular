@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BuyMeIt.BuildingBlocks.EventBus.InMemory;
 using BuyMeIt.BuildingBlocks.EventBus.RabbitMQ;
 using Moq;
 using NUnit.Framework;
@@ -12,46 +13,67 @@ namespace BuyMeIt.BuildingBlocks.EventBus.Tests.RabbitMQ
     public class RabbitMqClientTests : EventBusTestsBase
     {
         private RabbitMqPersistentConnection _rabbitMqConnection;
+        private ConnectionFactory _connectionFactory;
         private Mock<ILogger> _mockLogger;
+        private const string queueName = "RabbitMQEventBusClient_test_queue";
 
         [SetUp]
         public void Initialize()
         {
-            ConnectionFactory connectionFactory = new ConnectionFactory
+            _connectionFactory = new ConnectionFactory
             {
                 HostName = "localhost",
                 UserName = "guest",
-                Password = "guest"
+                Password = "guest",
+                DispatchConsumersAsync = true
             };
 
             _mockLogger = new Mock<ILogger>();
 
             _rabbitMqConnection = new RabbitMqPersistentConnection(
-                connectionFactory,
+                _connectionFactory,
                 _mockLogger.Object,
                 5);
         }
 
-        //[TearDown]
-        //public void DisposeRabbitMqConnection()
-        //{
-        //    _rabbitMqConnection.Dispose();
-        //}
+        [TearDown]
+        public void ClearBeforeNextTestRun()
+        {
+            InMemoryEventBus.Instance.ClearHandlers();
+
+            using (var connection = _connectionFactory.CreateConnection())
+            {
+                using (var channel = connection.CreateModel())
+                {
+                    channel.QueueDelete(queueName, false, false);
+                }
+            }
+        }
 
         [Test]
-        public async Task WhenPublishInvoked_AndNoSubscribers_Then()
+        public async Task When_PublishInvoked_And_1_SubscriberForPublishedEvent_ThenEventShouldBeHandled_Once()
         {
-            string queueName = "RabbitMQEventBusClient_test_queue";
             var rabbitMqClient = new RabbitMQEventBusClient(
                 _rabbitMqConnection, 
                 _mockLogger.Object, 
-                queueName, 5);
+                queueName, 
+                5);
 
-            await rabbitMqClient.Publish(new FirstTestEvent(Guid.NewGuid(), DateTimeOffset.UtcNow));
+            int timesCalled = 0;
 
-            rabbitMqClient.Subscribe(new FirstTestEventHandler());
+            InMemoryEventBus.Instance.OnEventPublished += (s, e) =>
+            {
+                ++timesCalled;
+            };
 
-            await Task.Delay(300000);
+            rabbitMqClient.Subscribe(new FourthTestEventHandler());
+            
+            await rabbitMqClient.Publish(new FourthTestEvent(Guid.NewGuid(), DateTimeOffset.UtcNow));
+
+            await Task.Delay(500);
+
+            Assert.AreEqual(1, timesCalled);
+
         }
     }
 }

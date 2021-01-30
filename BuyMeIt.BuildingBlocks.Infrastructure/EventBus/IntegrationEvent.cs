@@ -9,6 +9,7 @@ namespace BuyMeIt.BuildingBlocks.Infrastructure.EventBus
 
         public DateTimeOffset OccurredOn { get; }
 
+        
         protected IntegrationEvent(Guid id, DateTimeOffset occurredOn)
         {
             this.Id = id;

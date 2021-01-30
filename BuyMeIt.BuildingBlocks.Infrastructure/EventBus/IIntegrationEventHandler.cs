@@ -4,6 +4,7 @@ namespace BuyMeIt.BuildingBlocks.Infrastructure.EventBus
 {
     public interface IIntegrationEventHandler
     {
+        Task Handle(dynamic @event);
     }
 
     public interface IIntegrationEventHandler<in TIntegrationEvent> : IIntegrationEventHandler 

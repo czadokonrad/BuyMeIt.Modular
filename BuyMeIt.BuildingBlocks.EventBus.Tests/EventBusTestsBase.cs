@@ -20,6 +20,11 @@ namespace BuyMeIt.BuildingBlocks.EventBus.Tests
             {
                 return Task.CompletedTask;
             }
+
+            public Task Handle(dynamic @event)
+            {
+                return Task.CompletedTask;
+            }
         }
         
         public class SecondTestEvent : IntegrationEvent
@@ -35,6 +40,11 @@ namespace BuyMeIt.BuildingBlocks.EventBus.Tests
             {
                 return Task.CompletedTask;
             }
+            
+            public Task Handle(dynamic @event)
+            {
+                return Task.CompletedTask;
+            }
         }
         
         public class ThirdTestEvent : IntegrationEvent
@@ -47,6 +57,29 @@ namespace BuyMeIt.BuildingBlocks.EventBus.Tests
         public class ThirdTestEventHandler : IIntegrationEventHandler<ThirdTestEvent>
         {
             public Task Handle(ThirdTestEvent @event)
+            {
+                return Task.CompletedTask;
+            } 
+            public Task Handle(dynamic @event)
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public class FourthTestEvent : IntegrationEvent
+        {
+            public FourthTestEvent(Guid id, DateTimeOffset occurredOn) : base(id, occurredOn)
+            {
+            }
+        }
+
+        public class FourthTestEventHandler : IIntegrationEventHandler<FourthTestEvent>
+        {
+            public Task Handle(FourthTestEvent @event)
+            {
+                return Task.CompletedTask;
+            }
+            public Task Handle(dynamic @event)
             {
                 return Task.CompletedTask;
             }

@@ -51,7 +51,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
 
             var policy = CreateRabbitMqConnectRetryPolicy(@event);
 
-            var eventName = @event.GetType().Name;
+            var eventName = @event.GetType().FullName;
             
             _logger.Information("Creating RabbitMQ channel to publish event: {EventId} ({EventName})", @event.Id, eventName);
 
@@ -89,7 +89,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         public void Subscribe<TEvent>(IIntegrationEventHandler<TEvent> handler) where TEvent : IntegrationEvent
         {
             string handlerName = handler.GetType().Name;
-            string eventName = typeof(TEvent).Name;
+            string eventName = typeof(TEvent).FullName;
             
             
             _logger.Information("Handler {HandlerName} is subscribing to event {EventName}",
@@ -137,13 +137,12 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         {
             string eventName = @event.RoutingKey;
             string message = Encoding.UTF8.GetString(@event.Body.ToArray());
-
-            Type eventType = Type.GetType(eventName);
+            
 
             try
             {
-                var integrationEvent = (IntegrationEvent)JsonConvert.DeserializeObject(message, eventType);
-                await ProcessEventAsync(integrationEvent);
+                dynamic integrationEvent = JsonConvert.DeserializeObject(message);
+                await ProcessEventAsync(eventName, integrationEvent);
             }
             catch (Exception e)
             {
@@ -156,11 +155,11 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
             _consumerChannel.BasicAck(@event.DeliveryTag, multiple: false);
         }
 
-        private async Task ProcessEventAsync<TEvent>(TEvent @event) where TEvent : IntegrationEvent
+        private async Task ProcessEventAsync(string eventName, dynamic @event)
         {
             _logger.Information("Processing RabbitMQ event: {EventName}", @event.GetType().Name);
 
-            await InMemoryEventBus.Instance.Publish(@event);
+            await InMemoryEventBus.Instance.Publish(eventName, @event);
         }
 
         private IModel CreateConsumerChannel()
@@ -192,7 +191,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         {
             _logger.Warning(e.Exception, "Recreating RabbitMQ consumer channel");
             
-           // _consumerChannel.Dispose();
+            _consumerChannel.Dispose();
 
             _consumerChannel = CreateConsumerChannel();
             StartBasicConsume();
@@ -214,7 +213,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         
         public void Dispose()
         {
-            throw new NotImplementedException();
+            _consumerChannel?.Dispose();
         }
     }
 }
