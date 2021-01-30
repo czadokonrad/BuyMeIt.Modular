@@ -6,9 +6,9 @@ namespace BuyMeIt.BuildingBlocks.Domain
 #nullable enable
     public abstract class Entity
     {
-        private List<IDomainEvent>? _domainEvents;
+        private List<IDomainEvent> _domainEvents = new List<IDomainEvent>();
 
-        public IReadOnlyCollection<IDomainEvent>? DomainEvents => _domainEvents?.AsReadOnly();
+        public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
         public void ClearDomainEvents() => 
             _domainEvents?.Clear();

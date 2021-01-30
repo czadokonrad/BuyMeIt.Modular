@@ -19,23 +19,14 @@
                 offset = (query.Page.Value - 1) * query.PerPage.Value;
             }
 
-            int next;
-            if (!query.PerPage.HasValue)
-            {
-                next = int.MaxValue;
-            }
-            else
-            {
-                next = query.PerPage.Value;
-            }
+            var next = query.PerPage ?? int.MaxValue;
 
             return new PageData(offset, next);
         }
 
         public static string AppendPageStatement(string sql)
         {
-            return $"{sql} " +
-                   $"OFFSET @{Offset} ROWS FETCH NEXT @{Next} ROWS ONLY; ";
+            return $"{sql} OFFSET @{Offset} ROWS FETCH NEXT @{Next} ROWS ONLY; ";
         }
     }
 }

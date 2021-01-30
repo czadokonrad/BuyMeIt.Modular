@@ -12,4 +12,8 @@
     <ProjectReference Include="..\BuyMeIt.BuildingBlocks.Infrastructure\BuyMeIt.BuildingBlocks.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RabbitMQ\" />
+  </ItemGroup>
+
 </Project>

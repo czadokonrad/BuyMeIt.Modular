@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace BuyMeIt.BuildingBlocks.Infrastructure.DomainEventsDispatching
 {
+#nullable enable
     public sealed class DomainEventsAccessor : IDomainEventsAccessor
     {
         private readonly DbContext _context;
@@ -14,6 +15,7 @@ namespace BuyMeIt.BuildingBlocks.Infrastructure.DomainEventsDispatching
         public DomainEventsAccessor(DbContext context)
         {
             _context = context;
+            _domainEntities = new List<EntityEntry<Entity>>();
         }
 
         private void FindDomainEntitiesWithDomainEvents()
@@ -40,4 +42,5 @@ namespace BuyMeIt.BuildingBlocks.Infrastructure.DomainEventsDispatching
             }
         }
     }
+#nullable restore
 }

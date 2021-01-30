@@ -51,5 +51,12 @@ namespace BuyMeIt.Modules.UserAccess.Domain.Users
 
             this.AddDomainEvent(new UserCreatedDomainEvent(this.Id));
         }
+
+        public void CloseAccount()
+        {
+            _isActive = false;
+
+            this.AddDomainEvent(new UserClosedAccountDomainEvent(this.Id));
+        }
     }
 }

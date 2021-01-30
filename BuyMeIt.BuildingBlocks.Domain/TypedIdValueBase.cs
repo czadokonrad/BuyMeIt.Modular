@@ -2,6 +2,7 @@
 
 namespace BuyMeIt.BuildingBlocks.Domain
 {
+#nullable enable
     public abstract class TypedIdValueBase : IEquatable<TypedIdValueBase>
     {
         public Guid Value { get; }
@@ -16,7 +17,7 @@ namespace BuyMeIt.BuildingBlocks.Domain
             Value = value;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj))
             {
@@ -31,12 +32,12 @@ namespace BuyMeIt.BuildingBlocks.Domain
             return Value.GetHashCode();
         }
 
-        public bool Equals(TypedIdValueBase other)
+        public bool Equals(TypedIdValueBase? other)
         {
             return this.Value == other?.Value;
         }
 
-        public static bool operator ==(TypedIdValueBase obj1, TypedIdValueBase obj2)
+        public static bool operator ==(TypedIdValueBase? obj1, TypedIdValueBase? obj2)
         {
             if (object.Equals(obj1, null))
             {
@@ -51,9 +52,11 @@ namespace BuyMeIt.BuildingBlocks.Domain
             return obj1.Equals(obj2);
         }
 
-        public static bool operator !=(TypedIdValueBase x, TypedIdValueBase y)
+        public static bool operator !=(TypedIdValueBase? x, TypedIdValueBase? y)
         {
             return !(x == y);
         }
     }
+
+#nullable restore
 }
