@@ -1,7 +1,220 @@
-﻿namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
+﻿using System;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
+using BuyMeIt.BuildingBlocks.EventBus.InMemory;
+using BuyMeIt.BuildingBlocks.Infrastructure.EventBus;
+using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
+using Serilog;
+
+namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
 {
-    public class RabbitMQEventBusClient
+    public class RabbitMQEventBusClient : IEventsBus, IDisposable
     {
+        private readonly IRabbitMqPersistentConnection _rabbitMqPersistentConnection;
+        private readonly ILogger _logger;
+        private readonly int _retryCount;
         
+        private string _queueName;
+        private IModel _consumerChannel;
+
+        private const string ExchangeName = "BuyMeIt_Modular_Event_Bus";
+        private const string DirectExchangeType = "direct";
+        
+        private const int DefaultRetryCount = 5;
+        private const int PersistentDeliveryMode = 2;
+        
+        public RabbitMQEventBusClient(
+            IRabbitMqPersistentConnection rabbitMqPersistentConnection, 
+            ILogger logger,
+            string queueName,
+            int retryCount)
+        {
+            _rabbitMqPersistentConnection = rabbitMqPersistentConnection;
+            _logger = logger;
+            _queueName = queueName;
+            _retryCount = retryCount == default ? DefaultRetryCount : retryCount;
+            _consumerChannel = CreateConsumerChannel();
+        }
+        
+        public Task Publish<TEvent>(TEvent @event) where TEvent : IntegrationEvent
+        {
+            if (!_rabbitMqPersistentConnection.IsConnected)
+            {
+                _rabbitMqPersistentConnection.TryConnect();
+            }
+
+            var policy = CreateRabbitMqConnectRetryPolicy(@event);
+
+            var eventName = @event.GetType().Name;
+            
+            _logger.Information("Creating RabbitMQ channel to publish event: {EventId} ({EventName})", @event.Id, eventName);
+
+            using (var channel = _rabbitMqPersistentConnection.CreateModel())
+            {
+                _logger.Information("Declaring RabbitMQ exchange to publish event: {EventId}", @event.Id);
+                
+                channel.ExchangeDeclare(exchange: ExchangeName, 
+                                        type: DirectExchangeType,
+                                        durable: false,
+                                        autoDelete: false,
+                                        arguments: null);
+
+                string message = JsonConvert.SerializeObject(@event);
+                byte[] body = Encoding.UTF8.GetBytes(message);
+
+                policy.Execute(() =>
+                {
+                    var properties = channel.CreateBasicProperties();
+                    properties.DeliveryMode = PersistentDeliveryMode;
+                    
+                    _logger.Information("Publishing event to RabbitMQ: {EventId}", @event.Id);
+                    
+                    channel.BasicPublish(exchange: ExchangeName,
+                                         routingKey: eventName,
+                                         mandatory: true,
+                                         basicProperties: properties,
+                                         body: body);
+                });
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public void Subscribe<TEvent>(IIntegrationEventHandler<TEvent> handler) where TEvent : IntegrationEvent
+        {
+            string handlerName = handler.GetType().Name;
+            string eventName = typeof(TEvent).Name;
+            
+            
+            _logger.Information("Handler {HandlerName} is subscribing to event {EventName}",
+                handlerName, eventName);
+
+            if (!_rabbitMqPersistentConnection.IsConnected)
+            {
+                _rabbitMqPersistentConnection.TryConnect();
+            }
+
+            using (var channel = _rabbitMqPersistentConnection.CreateModel())
+            {
+                channel.QueueBind(queue: _queueName ?? string.Empty,
+                                  exchange: ExchangeName,
+                                  routingKey: eventName,
+                                  arguments: null);
+            }
+            
+            InMemoryEventBus.Instance.Subscribe(handler);
+
+            StartBasicConsume();
+        }
+
+        private void StartBasicConsume()
+        {
+            _logger.Information("Starting RabbitMQ basic consume");
+
+            if (_consumerChannel != null)
+            {
+                var consumer = new AsyncEventingBasicConsumer(_consumerChannel);
+                
+                consumer.Received += OnBasicConsumeReceived;
+
+                _consumerChannel.BasicConsume(queue: _queueName, 
+                                              autoAck: false,
+                                              consumer: consumer);
+            }
+            else
+            {
+                _logger.Error("StartBasicConsume can't call on _consumerChannel == null");
+            }
+        }
+
+        private async Task OnBasicConsumeReceived(object sender, BasicDeliverEventArgs @event)
+        {
+            string eventName = @event.RoutingKey;
+            string message = Encoding.UTF8.GetString(@event.Body.ToArray());
+
+            Type eventType = Type.GetType(eventName);
+
+            try
+            {
+                var integrationEvent = (IntegrationEvent)JsonConvert.DeserializeObject(message, eventType);
+                await ProcessEventAsync(integrationEvent);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "----- ERROR Processing message \"{Message}\"", message);
+            }
+            
+            // Even on exception we take the message off the queue.
+            // in a REAL WORLD app this should be handled with a Dead Letter Exchange (DLX). 
+            // For more information see: https://www.rabbitmq.com/dlx.html
+            _consumerChannel.BasicAck(@event.DeliveryTag, multiple: false);
+        }
+
+        private async Task ProcessEventAsync<TEvent>(TEvent @event) where TEvent : IntegrationEvent
+        {
+            _logger.Information("Processing RabbitMQ event: {EventName}", @event.GetType().Name);
+
+            await InMemoryEventBus.Instance.Publish(@event);
+        }
+
+        private IModel CreateConsumerChannel()
+        {
+            if (!_rabbitMqPersistentConnection.IsConnected)
+            {
+                _rabbitMqPersistentConnection.TryConnect(); 
+            }
+            
+            _logger.Information("Creating RabbitMQ consumer channel");
+
+            var channel = _rabbitMqPersistentConnection.CreateModel();
+            
+            channel.ExchangeDeclare(exchange: ExchangeName,
+                                    type: DirectExchangeType);
+
+            channel.QueueDeclare(queue: _queueName,
+                                 durable: true,
+                                 exclusive: false,
+                                 autoDelete: false,
+                                 arguments: null);
+            
+            channel.CallbackException += OnConsumerChannelException;
+
+            return channel;
+        }
+
+        private void OnConsumerChannelException(object sender, CallbackExceptionEventArgs e)
+        {
+            _logger.Warning(e.Exception, "Recreating RabbitMQ consumer channel");
+            
+           // _consumerChannel.Dispose();
+
+            _consumerChannel = CreateConsumerChannel();
+            StartBasicConsume();
+        }
+
+        private RetryPolicy CreateRabbitMqConnectRetryPolicy<TEvent>(TEvent @event) where TEvent : IntegrationEvent =>
+            Policy.Handle<SocketException>()
+                .Or<BrokerUnreachableException>()
+                .WaitAndRetry(
+                    _retryCount,
+                    GetRetryAttemptExponentialBackoff,
+                    (ex, time) =>
+                    {
+                        _logger.Warning(ex, "RabbitMQ Client could not publish event: {EventId} after {TimeOut}s ({ExceptionMessage})",
+                            $"{@event.Id}-{@event.GetType().Name} {time.TotalSeconds:n1}", ex.Message);
+                    });
+        private TimeSpan GetRetryAttemptExponentialBackoff(int retryAttemptNumber) =>
+            TimeSpan.FromSeconds(Math.Pow(2, retryAttemptNumber));
+        
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

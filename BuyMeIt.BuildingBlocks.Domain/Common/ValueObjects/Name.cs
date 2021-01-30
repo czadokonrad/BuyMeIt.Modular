@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace BuyMeIt.BuildingBlocks.Domain.Common.ValueObjects
 {
     public sealed class Name : ValueObject
     {
-        public static Regex _validator = new Regex("^[a-zA-Z]+$");
-
         public string Value { get; }
 
         public Name(string value)
@@ -14,7 +12,7 @@ namespace BuyMeIt.BuildingBlocks.Domain.Common.ValueObjects
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentNullException(nameof(value));
 
-            if (!_validator.IsMatch(value))
+            if (value.Any(x => char.IsLetter(x)))
                 throw new ArgumentException(nameof(value));
 
             Value = value;

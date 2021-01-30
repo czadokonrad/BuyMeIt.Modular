@@ -1,4 +1,5 @@
-﻿using BuyMeIt.BuildingBlocks.Infrastructure.EventBus;
+﻿using System;
+using BuyMeIt.BuildingBlocks.Infrastructure.EventBus;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,10 @@ namespace BuyMeIt.BuildingBlocks.EventBus.InMemory
     {
         private readonly List<Subscription> _handlers;
 
+        public IReadOnlyCollection<Subscription> Handlers => _handlers?.AsReadOnly();
+
+        public void ClearHandlers() => _handlers.Clear();
+        
         private InMemoryEventBus()
         {
             _handlers = new List<Subscription>();
@@ -16,13 +21,13 @@ namespace BuyMeIt.BuildingBlocks.EventBus.InMemory
 
         public static InMemoryEventBus Instance { get; } = new InMemoryEventBus();
 
+        public event EventHandler OnEventPublished;
         public void Subscribe<T>(IIntegrationEventHandler<T> handler) where T : IntegrationEvent
         {
             _handlers.Add(new Subscription(handler, typeof(T).FullName));
         }
 
-        public async Task Publish<T>(T @event)
-            where T : IntegrationEvent
+        public async Task Publish<T>(T @event) where T : IntegrationEvent
         {
             var eventType = @event.GetType();
 
@@ -33,6 +38,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.InMemory
                 if (integrationEventHandler.Handler is IIntegrationEventHandler<T> handler)
                 {
                     await handler.Handle(@event);
+                    OnEventPublished?.Invoke(this, EventArgs.Empty);
                 }
             }
         }

@@ -4,8 +4,8 @@ namespace BuyMeIt.BuildingBlocks.Infrastructure.EventBus
 {
     public interface IEventsBus
     {
-        Task Publish<T>(T @event) where T : IntegrationEvent;
+        Task Publish<TEvent>(TEvent @event) where TEvent : IntegrationEvent;
 
-        void Subscribe<T>(IIntegrationEventHandler<T> handler) where T : IntegrationEvent;
+        void Subscribe<TEvent>(IIntegrationEventHandler<TEvent> handler) where TEvent : IntegrationEvent;
     }
 }

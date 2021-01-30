@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using BuyMeIt.BuildingBlocks.Infrastructure.EventBus;
 
-namespace BuyMeIt.BuildingBlocks.EventBus.Tests.InMemory
+namespace BuyMeIt.BuildingBlocks.EventBus.Tests
 {
     
-    public class InMemoryEventBusTestsBase
+    public class EventBusTestsBase
     {
         public class FirstTestEvent : IntegrationEvent
         {
