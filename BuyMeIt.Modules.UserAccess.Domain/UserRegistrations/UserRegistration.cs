@@ -10,23 +10,23 @@ namespace BuyMeIt.Modules.UserAccess.Domain.UserRegistrations
     {
         public UserRegistrationId Id { get; private set; }
 
-        private string _login;
+        public string Login { get; }
 
-        private string _password;
+        public string Password { get; }
 
-        private string _email;
+        public string Email { get; }
 
-        private string _firstName;
+        public string FirstName { get; }
 
-        private string _lastName;
+        public string LastName { get; }
 
-        private string _name;
+        public string Name { get; }
 
-        private DateTimeOffset _registerDate;
+        public DateTimeOffset RegisterDate { get; }
 
-        private UserRegistrationStatus _status;
+        public UserRegistrationStatus Status { get; private set; }
 
-        private DateTimeOffset? _confirmedDate;
+        public DateTimeOffset? ConfirmedDate { get; private set; }
 
         private UserRegistration()
         {
@@ -57,56 +57,56 @@ namespace BuyMeIt.Modules.UserAccess.Domain.UserRegistrations
             this.CheckRule(new UserLoginAndEmailMustBeUniqueRule(userUniqueness, login, email));
 
             this.Id = new UserRegistrationId(Guid.NewGuid());
-            _login = login;
-            _password = password;
-            _email = email;
-            _firstName = firstName;
-            _lastName = lastName;
-            _name = $"{firstName} {lastName}";
-            _registerDate = DateTimeOffset.UtcNow;
-            _status = UserRegistrationStatus.WaitingForConfirmation;
+            Login = login;
+            Password = password;
+            Email = email;
+            FirstName = firstName;
+            LastName = lastName;
+            Name = $"{firstName} {lastName}";
+            RegisterDate = DateTimeOffset.UtcNow;
+            Status = UserRegistrationStatus.WaitingForConfirmation;
 
             this.AddDomainEvent(new NewUserRegisteredDomainEvent(
                 this.Id,
-                _login,
-                _email,
-                _firstName,
-                _lastName,
-                _name,
-                _registerDate,
+                Login,
+                Email,
+                FirstName,
+                LastName,
+                Name,
+                RegisterDate,
                 confirmLink));
         }
 
         public User CreateUser()
         {
-            this.CheckRule(new UserCannotBeCreatedWhenRegistrationIsNotConfirmedRule(_status));
+            this.CheckRule(new UserCannotBeCreatedWhenRegistrationIsNotConfirmedRule(Status));
 
             return User.CreateFromUserRegistration(
                 this.Id,
-                this._login,
-                this._password,
-                this._email,
-                this._firstName,
-                this._lastName,
-                this._name);
+                this.Login,
+                this.Password,
+                this.Email,
+                this.FirstName,
+                this.LastName,
+                this.Name);
         }
 
         public void Confirm()
         {
-            this.CheckRule(new UserRegistrationCannotBeConfirmedMoreThanOnceRule(_status));
-            this.CheckRule(new UserRegistrationCannotBeConfirmedAfterExpirationRule(_status));
+            this.CheckRule(new UserRegistrationCannotBeConfirmedMoreThanOnceRule(Status));
+            this.CheckRule(new UserRegistrationCannotBeConfirmedAfterExpirationRule(Status));
 
-            _status = UserRegistrationStatus.Confirmed;
-            _confirmedDate = DateTimeOffset.UtcNow;
+            Status = UserRegistrationStatus.Confirmed;
+            ConfirmedDate = DateTimeOffset.UtcNow;
 
             this.AddDomainEvent(new UserRegistrationConfirmedDomainEvent(this.Id));
         }
 
         public void Expire()
         {
-            this.CheckRule(new UserRegistrationCannotBeExpiredMoreThanOnceRule(_status));
+            this.CheckRule(new UserRegistrationCannotBeExpiredMoreThanOnceRule(Status));
 
-            _status = UserRegistrationStatus.Expired;
+            Status = UserRegistrationStatus.Expired;
 
             this.AddDomainEvent(new UserRegistrationExpiredDomainEvent(this.Id));
         }

@@ -22,6 +22,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         
         private string _queueName;
         private IModel _consumerChannel;
+        private readonly DirectExchangeRabbitMQManager _directExchangeRabbitMQManager;
 
         private const string ExchangeName = "BuyMeIt_Modular_Event_Bus";
         private const string DirectExchangeType = "direct";
@@ -35,6 +36,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
             string queueName,
             int retryCount)
         {
+            _directExchangeRabbitMQManager = new DirectExchangeRabbitMQManager();
             _rabbitMqPersistentConnection = rabbitMqPersistentConnection;
             _logger = logger;
             _queueName = queueName;
@@ -44,10 +46,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         
         public Task Publish<TEvent>(TEvent @event) where TEvent : IntegrationEvent
         {
-            if (!_rabbitMqPersistentConnection.IsConnected)
-            {
-                _rabbitMqPersistentConnection.TryConnect();
-            }
+            RenewConnectionIfNeeded();
 
             var policy = CreateRabbitMqConnectRetryPolicy(@event);
 
@@ -59,7 +58,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
             {
                 _logger.Information("Declaring RabbitMQ exchange to publish event: {EventId}", @event.Id);
                 
-                new DirectExchangeRabbitMQManager().DeclareDefaultDirectExchange(channel, ExchangeName);
+                _directExchangeRabbitMQManager.DeclareDefaultDirectExchange(channel, ExchangeName);
                 
                 string message = JsonConvert.SerializeObject(@event);
                 byte[] body = Encoding.UTF8.GetBytes(message);
@@ -91,10 +90,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
             _logger.Information("Handler {HandlerName} is subscribing to event {EventName}",
                 handlerName, eventName);
 
-            if (!_rabbitMqPersistentConnection.IsConnected)
-            {
-                _rabbitMqPersistentConnection.TryConnect();
-            }
+            RenewConnectionIfNeeded();
 
             using (var channel = _rabbitMqPersistentConnection.CreateModel())
             {
@@ -107,6 +103,14 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
             InMemoryEventBus.Instance.Subscribe(handler);
 
             StartBasicConsume();
+        }
+
+        private void RenewConnectionIfNeeded()
+        {
+            if (!_rabbitMqPersistentConnection.IsConnected)
+            {
+                _rabbitMqPersistentConnection.TryConnect();
+            }
         }
 
         private void StartBasicConsume()
@@ -134,21 +138,19 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
             string eventName = @event.RoutingKey;
             string message = Encoding.UTF8.GetString(@event.Body.ToArray());
             
-
             try
             {
                 dynamic integrationEvent = JsonConvert.DeserializeObject(message);
                 await ProcessEventAsync(eventName, integrationEvent);
+                
+                _consumerChannel.BasicAck(@event.DeliveryTag, multiple: false);
             }
             catch (Exception e)
             {
+                _directExchangeRabbitMQManager.DeadLetter(_consumerChannel, @event.DeliveryTag);
                 _logger.Error(e, "----- ERROR Processing message \"{Message}\"", message);
             }
             
-            // Even on exception we take the message off the queue.
-            // in a REAL WORLD app this should be handled with a Dead Letter Exchange (DLX). 
-            // For more information see: https://www.rabbitmq.com/dlx.html
-            _consumerChannel.BasicAck(@event.DeliveryTag, multiple: false);
         }
 
         private async Task ProcessEventAsync(string eventName, dynamic @event)

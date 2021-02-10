@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BuyMeIt.BuildingBlocks.Domain
 {
@@ -29,6 +30,14 @@ namespace BuyMeIt.BuildingBlocks.Domain
         protected void CheckRule(IBusinessRule rule)
         {
             if(rule.IsBroken())
+            {
+                throw new BusinessRuleViolationException(rule);
+            }
+        }
+
+        protected async Task CheckRuleAsync(IAsyncBusinessRule rule)
+        {
+            if (await rule.IsBrokenAsync())
             {
                 throw new BusinessRuleViolationException(rule);
             }

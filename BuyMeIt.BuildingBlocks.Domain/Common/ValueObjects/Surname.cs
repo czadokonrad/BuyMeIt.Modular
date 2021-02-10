@@ -9,11 +9,11 @@ namespace BuyMeIt.BuildingBlocks.Domain.Common.ValueObjects
 
         public Surname(string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
             if (value.Any(x => char.IsDigit(x) || (!char.IsLetter(x) && x != '-')) || value.All(c => c == '-'))
-                throw new ArgumentException(nameof(value));
+                throw new DomainException($"Provided surname: '{value}' is not valid. Contains invalid non-letter characters");
 
             Value = value;
         }

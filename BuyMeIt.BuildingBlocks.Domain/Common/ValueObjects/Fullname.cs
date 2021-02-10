@@ -10,6 +10,16 @@ namespace BuyMeIt.BuildingBlocks.Domain.Common.ValueObjects
 
         public Fullname(string[] names, string surname)
         {
+            if (names == null)
+                throw new ArgumentNullException(nameof(names));
+            if (surname == null)
+                throw new ArgumentNullException(nameof(surname));
+            
+            if(names.Length == 0)
+            {
+                throw new DomainException("At least one one has to be provided");
+            }
+            
             Names = new Name[names.Length];
 
             for (int i = 0; i < names.Length; i++)
@@ -22,9 +32,14 @@ namespace BuyMeIt.BuildingBlocks.Domain.Common.ValueObjects
 
         public Fullname(Name[] names, Surname surname)
         {
-            if(names == null || names.Length == 0)
+            if (names == null)
+                throw new ArgumentNullException(nameof(names));
+            if (surname == null)
+                throw new ArgumentNullException(nameof(surname));
+            
+            if(names.Length == 0)
             {
-                throw new ArgumentException(nameof(names));
+                throw new DomainException("At least one one has to be provided");
             }
 
             Names = names;

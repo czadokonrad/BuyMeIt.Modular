@@ -13,7 +13,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
 {
     public class RabbitMqPersistentConnection : IRabbitMqPersistentConnection
     {
-        private readonly  IConnectionFactory _connectionFactory;
+        private readonly IConnectionFactory _connectionFactory;
         private readonly ILogger _logger;
         
         private int _retryCount;

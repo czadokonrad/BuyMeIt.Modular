@@ -9,10 +9,20 @@ namespace BuyMeIt.Modules.UserAccess.Infrastructure.Configuration.Processing
     {
         internal static async Task ExecuteAsync(ICommand command)
         {
-            await using var scope = UserAccessCompositionRoot.BeginLifetimeScope();
+            using (var scope = UserAccessCompositionRoot.BeginLifetimeScope())
+            {
+                var mediator = scope.Resolve<IMediator>();
+                await mediator.Send(command);
+            }
+        }
 
-            var mediator = scope.Resolve<IMediator>();
-            await mediator.Send(command);
+        internal static async Task<TResult> ExecuteAsync<TResult>(ICommand<TResult> command)
+        {
+            using (var scope = UserAccessCompositionRoot.BeginLifetimeScope())
+            {
+                var mediator = scope.Resolve<IMediator>();
+                return await mediator.Send(command);
+            }
         }
     }
 }

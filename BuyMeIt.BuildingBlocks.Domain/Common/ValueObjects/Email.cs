@@ -5,16 +5,16 @@ namespace BuyMeIt.BuildingBlocks.Domain.Common.ValueObjects
 {
     public sealed class Email : ValueObject
     {
-        public static EmailAddressAttribute _validator = new EmailAddressAttribute();
+        private static readonly EmailAddressAttribute Validator = new EmailAddressAttribute();
         public string Value { get; }
 
         public Email(string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            if (!_validator.IsValid(value))
-                throw new ArgumentException(nameof(value));
+            if (!Validator.IsValid(value))
+                throw new DomainException($"Provided email: '{value}' is not an valid email address");
 
             Value = value;
         }

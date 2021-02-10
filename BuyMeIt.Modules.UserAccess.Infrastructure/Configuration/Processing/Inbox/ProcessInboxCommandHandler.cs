@@ -6,6 +6,7 @@ using BuyMeIt.BuildingBlocks.Application.Data;
 using BuyMeIt.Modules.UserAccess.Application.Configuration.Commands;
 using Dapper;
 using MediatR;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace BuyMeIt.Modules.UserAccess.Infrastructure.Configuration.Processing.Inbox
@@ -51,10 +52,11 @@ namespace BuyMeIt.Modules.UserAccess.Infrastructure.Configuration.Processing.Inb
                 if (messageAssembly == null) continue;
                 
                 var type = messageAssembly.GetType(message.Type);
-
+                var request = JsonConvert.DeserializeObject(message.Data, type);
+                
                 try
                 {
-                    
+                    await _mediator.Publish((INotification)request, cancellationToken);
                 }
                 catch (Exception e)
                 {

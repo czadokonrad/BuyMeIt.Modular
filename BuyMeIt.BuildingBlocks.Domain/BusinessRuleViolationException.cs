@@ -15,6 +15,12 @@ namespace BuyMeIt.BuildingBlocks.Domain
             this.Details = brokenRule.Message;
         }
 
+        public BusinessRuleViolationException(IAsyncBusinessRule brokenRule)
+            : base(brokenRule.Message)
+        {
+            BrokenRule = brokenRule;
+            this.Details = brokenRule.Message;
+        }
         public BusinessRuleViolationException() : base()
         {
         }

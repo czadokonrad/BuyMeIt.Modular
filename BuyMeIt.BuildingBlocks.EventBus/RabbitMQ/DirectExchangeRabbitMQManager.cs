@@ -12,7 +12,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         public void DeclareDefaultDirectExchange(IModel channel, string exchangeName) =>
             channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
         
-        protected override void CreateDefaultExchangeAndDefaultQueue(IModel channel, string queueName, string exchangeName,
+        public void CreateDefaultExchangeAndDefaultQueue(IModel channel, string queueName, string exchangeName,
             string routingKey)
         {
             DeclareDefaultDirectExchange(channel, exchangeName);

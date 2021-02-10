@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Folder Include="Configuration\Mediation\" />
-    <Folder Include="Configuration\Processing\InternalCommands" />
   </ItemGroup>
 
 </Project>

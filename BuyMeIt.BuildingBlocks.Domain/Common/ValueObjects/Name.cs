@@ -9,11 +9,11 @@ namespace BuyMeIt.BuildingBlocks.Domain.Common.ValueObjects
 
         public Name(string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            if (value.Any(x => char.IsLetter(x)))
-                throw new ArgumentException(nameof(value));
+            if (value.Any(x => !char.IsLetter(x)))
+                throw new DomainException($"Provided name: '{value}' is not valid. Contains invalid non-letter characters");
 
             Value = value;
         }
