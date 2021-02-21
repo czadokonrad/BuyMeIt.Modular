@@ -13,19 +13,9 @@ namespace BuyMeIt.BuildingBlocks.Domain
         private List<FieldInfo>? _fields;
 
 
-        public static bool operator ==(ValueObject left, ValueObject right)
+        public static bool operator ==(ValueObject? left, ValueObject? right)
         {
-            if (object.Equals(left, null))
-            {
-                if (object.Equals(right, null))
-                {
-                    return true;
-                }
-
-                return false;
-            }
-
-            return left.Equals(right);
+            return left?.Equals(right) ?? object.Equals(right, null);
         }
 
         public static bool operator !=(ValueObject left, ValueObject right) => !(left == right);
@@ -49,20 +39,10 @@ namespace BuyMeIt.BuildingBlocks.Domain
         {
             unchecked
             {
-                int hash = 17;
-                foreach (var prop in GetProperties())
-                {
-                    var value = prop.GetValue(this, null);
-                    hash = HashValue(hash, value);
-                }
+                var hash = GetProperties().Select(prop => prop.GetValue(this, null))
+                    .Aggregate(17, HashValue);
 
-                foreach (var field in GetFields())
-                {
-                    var value = field.GetValue(this);
-                    hash = HashValue(hash, value);
-                }
-
-                return hash;
+                return GetFields().Select(field => field.GetValue(this)).Aggregate(hash, HashValue);
             }
         }
 

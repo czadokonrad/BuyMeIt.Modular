@@ -1,11 +1,6 @@
 ﻿using Autofac;
 using BuyMeIt.BuildingBlocks.Infrastructure.EventBus;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BuyMeIt.Modules.UserAccess.Infrastructure.Configuration.EventBus
 {

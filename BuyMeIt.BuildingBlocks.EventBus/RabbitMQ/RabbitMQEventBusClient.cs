@@ -22,7 +22,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         
         private string _queueName;
         private IModel _consumerChannel;
-        private readonly DirectExchangeRabbitMQManager _directExchangeRabbitMQManager;
+        private readonly DirectExchangeRabbitMqManager _directExchangeRabbitMQManager;
 
         private const string ExchangeName = "BuyMeIt_Modular_Event_Bus";
         private const string DirectExchangeType = "direct";
@@ -36,7 +36,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
             string queueName,
             int retryCount)
         {
-            _directExchangeRabbitMQManager = new DirectExchangeRabbitMQManager();
+            _directExchangeRabbitMQManager = new DirectExchangeRabbitMqManager();
             _rabbitMqPersistentConnection = rabbitMqPersistentConnection;
             _logger = logger;
             _queueName = queueName;
@@ -58,7 +58,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
             {
                 _logger.Information("Declaring RabbitMQ exchange to publish event: {EventId}", @event.Id);
                 
-                _directExchangeRabbitMQManager.DeclareDefaultDirectExchange(channel, ExchangeName);
+                _directExchangeRabbitMQManager.DeclareDurableDirectExchange(channel, ExchangeName);
                 
                 string message = JsonConvert.SerializeObject(@event);
                 byte[] body = Encoding.UTF8.GetBytes(message);
@@ -72,7 +72,6 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
                     
                     channel.BasicPublish(exchange: ExchangeName,
                                          routingKey: eventName,
-                                         mandatory: true,
                                          basicProperties: properties,
                                          body: body);
                 });
@@ -171,8 +170,7 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
 
             var channel = _rabbitMqPersistentConnection.CreateModel();
             
-            channel.ExchangeDeclare(exchange: ExchangeName,
-                                    type: DirectExchangeType);
+            _directExchangeRabbitMQManager.DeclareDurableDirectExchange(channel, ExchangeName);
 
             channel.QueueDeclare(queue: _queueName,
                                  durable: true,

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using RabbitMQ.Client;
 
 namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ

@@ -2,7 +2,7 @@
 
 namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
 {
-    public class DirectExchangeRabbitMQManager : RabbitMQManager
+    public class DirectExchangeRabbitMqManager : RabbitMQManager
     {
         /// <summary>
         /// Declares non-durable, non-autodelete direct exchange without setting any additional parameters explicitly
@@ -11,6 +11,9 @@ namespace BuyMeIt.BuildingBlocks.EventBus.RabbitMQ
         /// <param name="exchangeName">Exchange name</param>
         public void DeclareDefaultDirectExchange(IModel channel, string exchangeName) =>
             channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Direct);
+
+        public void DeclareDurableDirectExchange(IModel channel, string exchangeName) =>
+            channel.ExchangeDeclare(exchange: exchangeName, durable: true, type: ExchangeType.Direct);
         
         public void CreateDefaultExchangeAndDefaultQueue(IModel channel, string queueName, string exchangeName,
             string routingKey)

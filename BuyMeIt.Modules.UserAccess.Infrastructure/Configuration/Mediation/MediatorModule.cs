@@ -8,8 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BuyMeIt.Modules.UserAccess.Infrastructure.Configuration.Mediation
 {
@@ -17,6 +15,13 @@ namespace BuyMeIt.Modules.UserAccess.Infrastructure.Configuration.Mediation
     {
         protected override void Load(ContainerBuilder builder)
         {
+
+            var container = builder.Build();
+            using (var scope = container.BeginLifetimeScope())
+            {
+                
+            }
+            
             builder.RegisterAssemblyTypes(typeof(IMediator).GetTypeInfo().Assembly)
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();

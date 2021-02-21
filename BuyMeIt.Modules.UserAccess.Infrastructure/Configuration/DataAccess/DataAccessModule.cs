@@ -3,7 +3,6 @@ using BuyMeIt.BuildingBlocks.Application.Data;
 using BuyMeIt.BuildingBlocks.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Extensions.Logging;
 
 namespace BuyMeIt.Modules.UserAccess.Infrastructure.Configuration.DataAccess
 {

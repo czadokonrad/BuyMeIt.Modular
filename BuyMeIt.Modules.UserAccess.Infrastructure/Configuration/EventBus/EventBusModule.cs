@@ -1,11 +1,6 @@
 ﻿using Autofac;
 using BuyMeIt.BuildingBlocks.EventBus.InMemory;
 using BuyMeIt.BuildingBlocks.Infrastructure.EventBus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BuyMeIt.BuildingBlocks.EventBus.RabbitMQ;
 using RabbitMQ.Client;
 using Serilog;
@@ -16,7 +11,6 @@ namespace BuyMeIt.Modules.UserAccess.Infrastructure.Configuration.EventBus
     {
         protected override void Load(ContainerBuilder builder)
         {
-
             builder.RegisterType<RabbitMqPersistentConnection>()
                 .As<IRabbitMqPersistentConnection>()
                 .WithParameter("retryCount", 5)

@@ -75,5 +75,32 @@ namespace BuyMeIt.BuildingBlocks.EventBus.Tests.RabbitMQ
             Assert.AreEqual(1, timesCalled);
 
         }
+
+        [Test]
+        public async Task When_PublishInvoked_Twice_Then_EventsShouldBeHandledTwice()
+        {
+            var rabbitMqClient = new RabbitMQEventBusClient(
+                _rabbitMqConnection, 
+                _mockLogger.Object, 
+                queueName, 
+                5);
+
+            int timesCalled = 0;
+
+            InMemoryEventBus.Instance.OnEventPublished += (s, e) =>
+            {
+                ++timesCalled;
+            };
+            
+            rabbitMqClient.Subscribe(new FirstTestEventHandler());
+            rabbitMqClient.Subscribe(new SecondTestEventHandler());
+
+            await rabbitMqClient.Publish(new FirstTestEvent(Guid.NewGuid(), DateTimeOffset.UtcNow));
+            await rabbitMqClient.Publish(new SecondTestEvent(Guid.NewGuid(), DateTimeOffset.UtcNow));
+
+            await Task.Delay(500);
+            
+            Assert.That(timesCalled, Is.EqualTo(2));
+        }
     }
 }
